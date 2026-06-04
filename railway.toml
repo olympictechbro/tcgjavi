@@ -6,6 +6,7 @@ buildCommand = "npm install && npm run build"
 nixPkgs = ["nodejs_20"]
 
 [deploy]
+startCommand = "npm start"
 healthcheckPath = "/"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"
