@@ -6,6 +6,7 @@ import type { Card } from '../../lib/api';
 interface CardTileProps {
   card: Card;
   className?: string;
+  onQuickAdd?: () => void;
 }
 
 export const RARITY_COLORS: Record<string, { bg: string; text: string; label: string }> = {
@@ -35,7 +36,7 @@ const HOLO_RARITIES = new Set([
 ]);
 
 // ── Grid tile (for card grid view) ─────────────────────────────────────────────
-export function CardTile({ card, className }: CardTileProps) {
+export function CardTile({ card, className, onQuickAdd }: CardTileProps) {
   const { ref, onMouseMove, onMouseLeave } = useTilt(12);
   const nmPrice = card.prices?.find(p => p.condition === 'NEAR_MINT')?.marketPrice;
   const rarity = getRarity(card.rarity);
@@ -47,7 +48,7 @@ export function CardTile({ card, className }: CardTileProps) {
         ref={ref}
         onMouseMove={onMouseMove}
         onMouseLeave={onMouseLeave}
-        className="card-3d rounded-2xl overflow-hidden cursor-pointer"
+        className="card-3d rounded-2xl overflow-hidden cursor-pointer group"
         style={{ background: '#111811', border: '1px solid #1e2e1e' }}
       >
         <div className="card-shine rounded-2xl" />
@@ -81,6 +82,18 @@ export function CardTile({ card, className }: CardTileProps) {
 
         {/* Info */}
         <div className="px-3 pt-2.5 pb-3">
+          {/* Quick add button */}
+          {onQuickAdd && (
+            <button
+              onClick={e => { e.preventDefault(); e.stopPropagation(); onQuickAdd(); }}
+              className="absolute top-2 right-2 z-20 w-7 h-7 rounded-full flex items-center justify-center press-scale opacity-0 group-hover:opacity-100 transition-opacity"
+              style={{ background: '#00cc44', boxShadow: '0 2px 8px rgba(0,204,68,0.5)' }}
+            >
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+          )}
           <p className="text-[13px] font-bold text-[#e8f5e8] leading-tight truncate">{card.name}</p>
           {card.set?.id ? (
             <Link to={`/set/${card.set.id}`} onClick={e => e.stopPropagation()}
@@ -106,7 +119,7 @@ export function CardTile({ card, className }: CardTileProps) {
 }
 
 // ── List item (for list view — price prominently beside card) ──────────────────
-export function CardListItem({ card }: CardTileProps) {
+export function CardListItem({ card, onQuickAdd }: CardTileProps) {
   const nmPrice = card.prices?.find(p => p.condition === 'NEAR_MINT')?.marketPrice;
   const rarity = getRarity(card.rarity);
 
@@ -144,15 +157,28 @@ export function CardListItem({ card }: CardTileProps) {
           </div>
         </div>
 
-        {/* Price — right side */}
-        <div className="flex-shrink-0 text-right">
-          {nmPrice != null ? (
-            <>
-              <p className="text-[18px] font-bold text-[#00cc44] leading-tight">${nmPrice.toFixed(2)}</p>
-              <p className="text-[10px] text-[#4a5e4a] mt-0.5">NM</p>
-            </>
-          ) : (
-            <p className="text-[14px] text-[#4a5e4a]">—</p>
+        {/* Price + quick add */}
+        <div className="flex-shrink-0 flex items-center gap-2">
+          <div className="text-right">
+            {nmPrice != null ? (
+              <>
+                <p className="text-[18px] font-bold text-[#00cc44] leading-tight">${nmPrice.toFixed(2)}</p>
+                <p className="text-[10px] text-[#4a5e4a] mt-0.5">NM</p>
+              </>
+            ) : (
+              <p className="text-[14px] text-[#4a5e4a]">—</p>
+            )}
+          </div>
+          {onQuickAdd && (
+            <button
+              onClick={e => { e.preventDefault(); e.stopPropagation(); onQuickAdd(); }}
+              className="w-8 h-8 rounded-full flex items-center justify-center press-scale flex-shrink-0"
+              style={{ background: '#00cc44', boxShadow: '0 2px 8px rgba(0,204,68,0.4)' }}
+            >
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#000" strokeWidth="3" strokeLinecap="round">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
           )}
         </div>
       </div>

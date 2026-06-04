@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Search as SearchIcon, X, LayoutGrid, List } from 'lucide-react';
+import { AddCardSheet } from '../components/ui/AddCardSheet';
+import type { Card } from '../lib/api';
 import { searchCards } from '../lib/api';
 import { CardTile, CardTileSkeleton, CardListItem, CardListSkeleton } from '../components/ui/CardTile';
 import { cn } from '../lib/cn';
@@ -34,6 +36,7 @@ export default function Search() {
   const [language, setLanguage] = useState('');
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [quickAddCard, setQuickAddCard] = useState<Card | null>(null);
 
   const enabled = query.length > 1;
 
@@ -110,14 +113,14 @@ export default function Search() {
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
                 {isFetching && cards.length === 0
                   ? Array.from({ length: 24 }).map((_, i) => <CardTileSkeleton key={i} />)
-                  : cards.map(card => <CardTile key={card.id} card={card} />)
+                  : cards.map(card => <CardTile key={card.id} card={card} onQuickAdd={() => setQuickAddCard(card)} />)
                 }
               </div>
             ) : (
               <div className="space-y-2">
                 {isFetching && cards.length === 0
                   ? Array.from({ length: 20 }).map((_, i) => <CardListSkeleton key={i} />)
-                  : cards.map(card => <CardListItem key={card.id} card={card} />)
+                  : cards.map(card => <CardListItem key={card.id} card={card} onQuickAdd={() => setQuickAddCard(card)} />)
                 }
               </div>
             )}
@@ -135,6 +138,7 @@ export default function Search() {
           </>
         )}
       </main>
+      <AddCardSheet open={!!quickAddCard} initialCard={quickAddCard ?? undefined} onClose={() => setQuickAddCard(null)} />
     </div>
   );
 }

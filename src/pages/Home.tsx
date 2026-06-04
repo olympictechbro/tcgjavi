@@ -4,6 +4,7 @@ import { Search, SlidersHorizontal, Flame, Package, LayoutGrid, List } from 'luc
 import { Link } from 'react-router-dom';
 import { searchCards, getTrending, getSets, type Card } from '../lib/api';
 import { CardTile, CardTileSkeleton, CardListItem, CardListSkeleton } from '../components/ui/CardTile';
+import { AddCardSheet } from '../components/ui/AddCardSheet';
 import { cn } from '../lib/cn';
 
 const SORT_OPTIONS = [
@@ -23,6 +24,7 @@ export default function Home() {
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [quickAddCard, setQuickAddCard] = useState<Card | null>(null);
 
   const { data: setsData } = useQuery({
     queryKey: ['sets', language],
@@ -190,12 +192,12 @@ export default function Home() {
             <div className="flex gap-3 overflow-x-auto pb-2 -mx-1 px-1">
               {setsData.slice(0, 20).map(s => (
                 <button key={s.id} onClick={() => { setSetFilter(s.id); setShowFilters(true); }}
-                  className="flex-shrink-0 flex flex-col items-center gap-1.5 p-3 rounded-2xl press-scale w-24"
-                  style={{ background: '#111811', border: '1px solid #1e2e1e' }}>
+                  className="flex-shrink-0 flex flex-col items-center justify-center gap-2 px-4 py-3.5 rounded-2xl press-scale"
+                  style={{ background: '#111811', border: '1px solid #1e2e1e', minWidth: '120px' }}>
                   {s.logoUrl
-                    ? <img src={s.logoUrl} alt={s.name} className="w-16 h-8 object-contain" />
-                    : <span className="text-[9px] font-medium text-center text-[#8fa88f] leading-tight">{s.name}</span>}
-                  {s.symbolUrl && <img src={s.symbolUrl} alt="" className="w-4 h-4 object-contain" />}
+                    ? <img src={s.logoUrl} alt={s.name} className="h-10 max-w-[100px] object-contain" />
+                    : <span className="text-[11px] font-semibold text-center text-[#8fa88f] leading-tight px-1">{s.name}</span>}
+                  {s.symbolUrl && <img src={s.symbolUrl} alt="" className="w-5 h-5 object-contain" />}
                 </button>
               ))}
             </div>
@@ -215,14 +217,14 @@ export default function Home() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {isFetching && cards.length === 0
               ? Array.from({ length: 30 }).map((_, i) => <CardTileSkeleton key={i} />)
-              : cards.map(card => <CardTile key={card.id} card={card} />)
+              : cards.map(card => <CardTile key={card.id} card={card} onQuickAdd={() => setQuickAddCard(card)} />)
             }
           </div>
         ) : (
           <div className="space-y-2">
             {isFetching && cards.length === 0
               ? Array.from({ length: 20 }).map((_, i) => <CardListSkeleton key={i} />)
-              : cards.map(card => <CardListItem key={card.id} card={card} />)
+              : cards.map(card => <CardListItem key={card.id} card={card} onQuickAdd={() => setQuickAddCard(card)} />)
             }
           </div>
         )}
@@ -240,6 +242,12 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      <AddCardSheet
+        open={!!quickAddCard}
+        initialCard={quickAddCard ?? undefined}
+        onClose={() => setQuickAddCard(null)}
+      />
     </div>
   );
 }

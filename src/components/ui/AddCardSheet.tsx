@@ -7,6 +7,7 @@ import { cn } from '../../lib/cn';
 interface AddCardSheetProps {
   open: boolean;
   onClose: () => void;
+  initialCard?: Card;
 }
 
 const CONDITIONS = [
@@ -30,11 +31,11 @@ interface LotCard {
 }
 
 // ── Single card add ────────────────────────────────────────────────────────────
-function SingleMode({ onDone }: { onDone: () => void }) {
+function SingleMode({ onDone, initialCard }: { onDone: () => void; initialCard?: Card }) {
   const qc = useQueryClient();
-  const [step, setStep] = useState<'search' | 'details'>('search');
+  const [step, setStep] = useState<'search' | 'details'>(initialCard ? 'details' : 'search');
   const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState<Card | null>(null);
+  const [selected, setSelected] = useState<Card | null>(initialCard ?? null);
   const [form, setForm] = useState({ quantity: 1, condition: 'NEAR_MINT', costBasis: '', notes: '', tags: [] as string[] });
   const [done, setDone] = useState(false);
 
@@ -362,7 +363,7 @@ function BulkMode({ onDone }: { onDone: () => void }) {
 }
 
 // ── Sheet wrapper ──────────────────────────────────────────────────────────────
-export function AddCardSheet({ open, onClose }: AddCardSheetProps) {
+export function AddCardSheet({ open, onClose, initialCard }: AddCardSheetProps) {
   const [mode, setMode] = useState<'single' | 'bulk'>('single');
 
   function handleDone() { onClose(); setMode('single'); }
@@ -411,7 +412,7 @@ export function AddCardSheet({ open, onClose }: AddCardSheetProps) {
             </div>
           </div>
 
-          {mode === 'single' ? <SingleMode onDone={handleDone} /> : <BulkMode onDone={handleDone} />}
+          {mode === 'single' ? <SingleMode onDone={handleDone} initialCard={initialCard} /> : <BulkMode onDone={handleDone} />}
         </div>
       </div>
     </>
