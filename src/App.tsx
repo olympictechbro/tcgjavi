@@ -11,6 +11,7 @@ import Portfolio from './pages/Portfolio';
 import PnL from './pages/PnL';
 import Profile from './pages/Profile';
 import CardDetail from './pages/CardDetail';
+import SetDetail from './pages/SetDetail';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -35,6 +36,7 @@ export default function App() {
             <Route path="/pnl"       element={<PnL />} />
             <Route path="/profile"   element={<Profile />} />
             <Route path="/card/:id"  element={<CardDetail />} />
+            <Route path="/set/:id"   element={<SetDetail />} />
           </Routes>
 
           {/* Floating + button — sits above the pill nav */}

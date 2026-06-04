@@ -129,6 +129,7 @@ export interface Transaction {
   realizedGainPct: number | null;
   card?: Card | null;
   sealed?: SealedProduct | null;
+  inventory?: { costBasis: number; condition: string } | null;
 }
 
 export interface PnlSummary {
@@ -242,3 +243,37 @@ export const getPnlOverTime = (period = 'monthly') =>
 
 export const getBestFlips = () =>
   api.get<{ data: Transaction[] }>('/v1/pnl/best-flips').then(r => r.data.data);
+
+export const updateInventoryItem = (id: string, data: {
+  costBasis?: number; tags?: string[]; notes?: string; condition?: string;
+}) => api.patch<InventoryItem>(`/v1/inventory/${id}`, data).then(r => r.data);
+
+export const removeInventoryItem = (id: string) =>
+  api.delete(`/v1/inventory/${id}`).then(r => r.data);
+
+export const logSale = (data: {
+  type: 'SELL' | 'TRADE_OUT';
+  inventoryId: string;
+  cardId?: string | null;
+  sealedId?: string | null;
+  quantity: number;
+  pricePerUnit: number;
+  feesAmount?: number;
+  platform?: string;
+  notes?: string;
+  transactedAt: string;
+}) => api.post<Transaction>('/v1/transactions', data).then(r => r.data);
+
+export const getRecentSales = (limit = 20) =>
+  api.get<{ data: Transaction[] }>('/v1/transactions', { params: { type: 'SELL', limit } }).then(r => r.data.data);
+
+export const getSet = (id: string) =>
+  api.get<Set>(`/v1/sets/${id}`).then(r => r.data);
+
+export const getCardsBySet = (setId: string, page = 1, limit = 50) =>
+  withFallback(
+    () => api.get<{ data: Card[]; pagination: { total: number; pages: number } }>(
+      '/v1/cards/search', { params: { setId, page, limit, sort: 'number_asc' } }
+    ).then(r => r.data),
+    () => ptcgSearchCards({ setId, page, limit })
+  );

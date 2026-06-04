@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { cn } from '../../lib/cn';
 import { useTilt } from '../../hooks/useTilt';
 import type { Card } from '../../lib/api';
@@ -82,7 +82,14 @@ export function CardTile({ card, className }: CardTileProps) {
         {/* Info */}
         <div className="px-3 pt-2.5 pb-3">
           <p className="text-[13px] font-bold text-[#e8f5e8] leading-tight truncate">{card.name}</p>
-          <p className="text-[11px] text-[#4a5e4a] truncate mt-0.5">{card.set?.name}</p>
+          {card.set?.id ? (
+            <Link to={`/set/${card.set.id}`} onClick={e => e.stopPropagation()}
+              className="text-[11px] text-[#4a5e4a] hover:text-[#00cc44] transition-colors truncate mt-0.5 block">
+              {card.set.name}
+            </Link>
+          ) : (
+            <p className="text-[11px] text-[#4a5e4a] truncate mt-0.5">{card.set?.name}</p>
+          )}
 
           <div className="flex items-center justify-between mt-2 gap-1">
             <span className={cn('rarity-chip', rarity.bg, rarity.text)}>{rarity.label}</span>
@@ -121,7 +128,14 @@ export function CardListItem({ card }: CardTileProps) {
         {/* Info */}
         <div className="flex-1 min-w-0">
           <p className="text-[14px] font-bold text-[#e8f5e8] truncate">{card.name}</p>
-          <p className="text-[12px] text-[#4a5e4a] truncate">{card.set?.name}</p>
+          {card.set?.id ? (
+            <Link to={`/set/${card.set.id}`} onClick={e => e.stopPropagation()}
+              className="text-[12px] text-[#4a5e4a] hover:text-[#00cc44] transition-colors truncate block">
+              {card.set.name}
+            </Link>
+          ) : (
+            <p className="text-[12px] text-[#4a5e4a] truncate">{card.set?.name}</p>
+          )}
           <div className="flex items-center gap-2 mt-1.5">
             <span className={cn('rarity-chip', rarity.bg, rarity.text)}>{rarity.label}</span>
             {card.language === 'JP' && (

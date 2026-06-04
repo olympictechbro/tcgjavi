@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { DollarSign, TrendingUp, TrendingDown, Award, ArrowDownCircle, ArrowUpCircle } from 'lucide-react';
-import { getPnlSummary, getPnlOverTime, getBestFlips } from '../lib/api';
+import { getPnlSummary, getPnlOverTime, getBestFlips, getRecentSales } from '../lib/api';
 import { cn } from '../lib/cn';
 
 const PERIODS = ['daily', 'monthly', 'yearly'] as const;
@@ -50,6 +50,7 @@ export default function PnL() {
   const { data: summary } = useQuery({ queryKey: ['pnl-summary'], queryFn: getPnlSummary });
   const { data: overTime = [] } = useQuery({ queryKey: ['pnl-over-time', period], queryFn: () => getPnlOverTime(period) });
   const { data: flips = [] } = useQuery({ queryKey: ['best-flips'], queryFn: getBestFlips });
+  const { data: recentSales = [] } = useQuery({ queryKey: ['recent-sales'], queryFn: () => getRecentSales(15) });
 
   const totalGain = summary ? summary.realized.gain + summary.unrealized.gain : 0;
   const isOverallPositive = totalGain >= 0;
@@ -202,6 +203,47 @@ export default function PnL() {
                       <p className={cn('text-[10px]', gainPct >= 0 ? 'text-[#00cc44]' : 'text-[#ff3b3b]')}>
                         {gainPct >= 0 ? '+' : ''}{gainPct.toFixed(1)}%
                       </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Recent sales */}
+        {recentSales.length > 0 && (
+          <div className="rounded-2xl overflow-hidden" style={{ background: '#111811', border: '1px solid #1e2e1e' }}>
+            <div className="px-4 pt-4 pb-2">
+              <p className="text-[14px] font-bold text-[#e8f5e8]">Recent Sales</p>
+            </div>
+            <div className="divide-y" style={{ borderColor: '#1e2e1e' }}>
+              {recentSales.map(txn => {
+                const name = txn.card?.name ?? txn.sealed?.name ?? 'Item';
+                const image = txn.card?.imageSmall ?? txn.sealed?.imageUrl;
+                const costBasis = txn.inventory?.costBasis ?? 0;
+                const gain = txn.realizedGain ?? (txn.pricePerUnit - costBasis) * txn.quantity;
+                const isPos = gain >= 0;
+                return (
+                  <div key={txn.id} className="flex items-center gap-3 px-4 py-3">
+                    {image && <img src={image} alt={name} className="w-9 h-12 object-contain flex-shrink-0 rounded" />}
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] font-semibold text-[#e8f5e8] truncate">{name}</p>
+                      <p className="text-[10px] text-[#4a5e4a]">
+                        {new Date(txn.transactedAt).toLocaleDateString()} · {txn.platform?.replace(/_/g, ' ') ?? 'Local'} · ×{txn.quantity}
+                      </p>
+                      {/* Buy → Sell price */}
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className="text-[10px] text-[#4a5e4a]">${costBasis.toFixed(2)}</span>
+                        <span className="text-[9px] text-[#4a5e4a]">→</span>
+                        <span className="text-[10px] font-semibold text-[#e8f5e8]">${txn.pricePerUnit.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <div className="text-right flex-shrink-0">
+                      <p className={cn('text-[14px] font-bold', isPos ? 'text-[#00cc44]' : 'text-[#ff3b3b]')}>
+                        {isPos ? '+' : ''}${gain.toFixed(2)}
+                      </p>
+                      <p className="text-[10px] text-[#4a5e4a]">${(txn.pricePerUnit * txn.quantity).toFixed(2)} total</p>
                     </div>
                   </div>
                 );
