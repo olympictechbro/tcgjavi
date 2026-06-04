@@ -13,7 +13,7 @@ const tabs = [
 export function BottomNav() {
   return (
     /* Outer wrapper: full-width flex container just to center the pill */
-    <div className="fixed bottom-6 inset-x-0 z-50 flex justify-center pointer-events-none">
+    <div className="fixed bottom-6 inset-x-0 z-40 flex justify-center pointer-events-none">
       <nav
         className="pointer-events-auto flex items-center gap-0.5 p-1.5"
         style={{

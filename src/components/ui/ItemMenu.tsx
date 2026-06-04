@@ -79,12 +79,18 @@ export function ItemMenu({ item, onClose }: ItemMenuProps) {
 
   return (
     <>
-      <div className="fixed inset-0 z-50" style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
-        onClick={onClose} />
+      <div
+        className="fixed inset-0 z-[60]"
+        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
+        onClick={onClose}
+      />
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 sheet-enter max-w-lg mx-auto">
-        <div className="rounded-t-3xl flex flex-col max-h-[85vh]"
-          style={{ background: '#111811', border: '1px solid #1e2e1e', borderBottom: 'none' }}>
+      <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center md:p-6 pointer-events-none">
+        <div
+          className="pointer-events-auto w-full md:max-w-lg flex flex-col rounded-t-3xl md:rounded-3xl sheet-enter md:modal-enter"
+          style={{ background: '#111811', border: '1px solid #1e2e1e', borderBottom: 'none', maxHeight: 'min(88vh, 640px)' }}
+          onClick={e => e.stopPropagation()}
+        >
 
           {/* Handle */}
           <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
@@ -287,6 +293,8 @@ export function ItemMenu({ item, onClose }: ItemMenuProps) {
               </button>
             </div>
           )}
+          {/* Bottom safe area — clears pill nav on mobile */}
+          <div className="h-6 md:hidden flex-shrink-0" />
         </div>
       </div>
     </>

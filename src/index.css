@@ -107,6 +107,14 @@ body {
   to   { transform: translateY(0); }
 }
 
+.modal-enter {
+  animation: modalIn 0.22s cubic-bezier(0.32, 0.72, 0, 1);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
+}
+
 /* ── Shimmer skeleton ─────────────────────────────────────────────────────── */
 .shimmer {
   background: linear-gradient(90deg, #161e16 25%, #1c261c 50%, #161e16 75%);

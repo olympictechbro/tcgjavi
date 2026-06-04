@@ -372,20 +372,41 @@ export function AddCardSheet({ open, onClose, initialCard }: AddCardSheetProps) 
 
   return (
     <>
-      <div className="fixed inset-0 z-50" style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(4px)' }}
-        onClick={handleDone} />
+      {/* Backdrop — above pill nav (z-60) */}
+      <div
+        className="fixed inset-0 z-[60]"
+        style={{ background: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(6px)' }}
+        onClick={handleDone}
+      />
 
-      <div className="fixed bottom-0 left-0 right-0 z-50 sheet-enter max-w-lg mx-auto">
-        <div className="rounded-t-3xl flex flex-col max-h-[92vh]"
-          style={{ background: '#111811', border: '1px solid #1e2e1e', borderBottom: 'none' }}>
-
-          {/* Handle */}
-          <div className="flex justify-center pt-3 pb-1 flex-shrink-0">
+      {/*
+        Mobile  (< md): bottom sheet slides up, pill nav is behind it
+        Desktop (≥ md): centered dialog with rounded corners all around
+      */}
+      <div className="fixed inset-0 z-[60] flex items-end md:items-center justify-center md:p-6 pointer-events-none">
+        <div
+          className={[
+            'pointer-events-auto w-full md:max-w-lg flex flex-col',
+            'rounded-t-3xl md:rounded-3xl',
+            'sheet-enter md:modal-enter',
+          ].join(' ')}
+          style={{
+            background: '#111811',
+            border: '1px solid #1e2e1e',
+            /* On mobile: no bottom border so it merges with screen edge */
+            borderBottom: 'none',
+            maxHeight: 'min(92vh, 760px)',
+          }}
+          /* Stop backdrop click propagating through the modal */
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Drag handle — mobile only */}
+          <div className="flex justify-center pt-3 pb-1 flex-shrink-0 md:hidden">
             <div className="w-10 h-1 rounded-full" style={{ background: '#2a3d2a' }} />
           </div>
 
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-2.5 flex-shrink-0">
+          <div className="flex items-center justify-between px-5 py-3 flex-shrink-0">
             <div>
               <h2 className="text-[18px] font-bold text-[#e8f5e8]">Add to Collection</h2>
               <p className="text-[11px] text-[#4a5e4a] mt-0.5">
@@ -393,9 +414,8 @@ export function AddCardSheet({ open, onClose, initialCard }: AddCardSheetProps) 
               </p>
             </div>
             <div className="flex items-center gap-2">
-              {/* Mode toggle */}
               <div className="flex rounded-xl overflow-hidden" style={{ border: '1px solid #1e2e1e' }}>
-                <button onClick={() => setMode('single')} className="px-3 py-1.5 press-scale flex items-center gap-1.5"
+                <button onClick={() => setMode('single')} className="px-3 py-1.5 press-scale"
                   style={{ background: mode === 'single' ? '#1e2e1e' : 'transparent', color: mode === 'single' ? '#e8f5e8' : '#4a5e4a' }}>
                   <span className="text-[12px] font-semibold">Single</span>
                 </button>
@@ -412,7 +432,15 @@ export function AddCardSheet({ open, onClose, initialCard }: AddCardSheetProps) 
             </div>
           </div>
 
-          {mode === 'single' ? <SingleMode onDone={handleDone} initialCard={initialCard} /> : <BulkMode onDone={handleDone} />}
+          {/* Scrollable content */}
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {mode === 'single'
+              ? <SingleMode onDone={handleDone} initialCard={initialCard} />
+              : <BulkMode onDone={handleDone} />
+            }
+            {/* Bottom safe area — clears pill nav on mobile */}
+            <div className="h-6 md:hidden" />
+          </div>
         </div>
       </div>
     </>
