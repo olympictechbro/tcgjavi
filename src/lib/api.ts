@@ -181,15 +181,18 @@ export const getSets = (params?: { language?: string }) =>
   );
 
 export const searchCards = (params: {
-  q?: string; language?: string; setId?: string; rarity?: string;
+  q?: string; language?: string; setId?: string; setIds?: string[]; rarity?: string;
   sort?: string; page?: number; limit?: number;
-}) =>
-  withFallback(
+}) => {
+  const { setIds, ...rest } = params;
+  const apiParams = { ...rest, ...(setIds?.length ? { setIds: setIds.join(',') } : {}) };
+  return withFallback(
     () => api.get<{ data: Card[]; pagination: { total: number; pages: number } }>(
-      '/v1/cards/search', { params }
+      '/v1/cards/search', { params: apiParams }
     ).then(r => r.data),
-    () => ptcgSearchCards({ q: params.q, setId: params.setId, rarity: params.rarity, page: params.page, limit: params.limit })
+    () => ptcgSearchCards({ q: params.q, setId: params.setIds?.[0] ?? params.setId, rarity: params.rarity, page: params.page, limit: params.limit })
   );
+};
 
 export const getCard = (id: string) =>
   withFallback(
