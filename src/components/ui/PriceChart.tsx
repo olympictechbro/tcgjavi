@@ -25,9 +25,9 @@ function CustomTooltip({ active, payload }: any) {
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-white border border-black/[0.06] rounded-xl px-3 py-2 shadow-lg text-center">
-      <p className="text-[18px] font-bold text-[#1C1C1E]">${d.marketPrice?.toFixed(2)}</p>
-      <p className="text-[11px] text-[#8E8E93]">{new Date(d.recordedAt).toLocaleDateString()}</p>
+    <div className="rounded-xl px-3 py-2 shadow-lg text-center" style={{ background: '#161e16', border: '1px solid #1e2e1e' }}>
+      <p className="text-[17px] font-bold text-[#00cc44]">${d.marketPrice?.toFixed(2)}</p>
+      <p className="text-[10px] text-[#4a5e4a]">{new Date(d.recordedAt).toLocaleDateString()}</p>
     </div>
   );
 }
@@ -45,6 +45,7 @@ export function PriceChart({ cardId, currentPrice }: PriceChartProps) {
   const change = last - first;
   const changePct = first > 0 ? (change / first) * 100 : 0;
   const isUp = change >= 0;
+  const lineColor = isUp ? '#00cc44' : '#ff3b3b';
 
   const chartData = data.map(d => ({
     ...d,
@@ -52,20 +53,20 @@ export function PriceChart({ cardId, currentPrice }: PriceChartProps) {
   }));
 
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-black/[0.06]">
+    <div className="rounded-2xl overflow-hidden" style={{ background: '#111811', border: '1px solid #1e2e1e' }}>
       {/* Price header */}
       <div className="px-4 pt-4 pb-2">
         <div className="flex items-baseline gap-2">
-          <span className="text-[32px] font-bold tracking-tight text-[#1C1C1E]">
+          <span className="text-[30px] font-bold tracking-tight text-[#e8f5e8]">
             ${currentPrice?.toFixed(2) ?? '—'}
           </span>
           {data.length > 1 && (
-            <span className={cn('text-[14px] font-semibold', isUp ? 'text-gain' : 'text-loss')}>
+            <span className={cn('text-[13px] font-semibold', isUp ? 'text-[#00cc44]' : 'text-[#ff3b3b]')}>
               {isUp ? '+' : ''}{change.toFixed(2)} ({isUp ? '+' : ''}{changePct.toFixed(1)}%)
             </span>
           )}
         </div>
-        <p className="text-[12px] text-[#8E8E93] mt-0.5">NM Market Price · Last 4 sales avg</p>
+        <p className="text-[11px] text-[#4a5e4a] mt-0.5">NM Market Price · avg last 4 sales</p>
       </div>
 
       {/* Chart */}
@@ -77,26 +78,26 @@ export function PriceChart({ cardId, currentPrice }: PriceChartProps) {
             <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -28, bottom: 0 }}>
               <defs>
                 <linearGradient id="priceGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%"  stopColor={isUp ? '#34C759' : '#FF3B30'} stopOpacity={0.25} />
-                  <stop offset="95%" stopColor={isUp ? '#34C759' : '#FF3B30'} stopOpacity={0.02} />
+                  <stop offset="5%"  stopColor={lineColor} stopOpacity={0.3} />
+                  <stop offset="95%" stopColor={lineColor} stopOpacity={0.02} />
                 </linearGradient>
               </defs>
-              <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#8E8E93' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
-              <YAxis tick={{ fontSize: 10, fill: '#8E8E93' }} axisLine={false} tickLine={false} domain={['auto', 'auto']} />
-              <Tooltip content={<CustomTooltip />} />
+              <XAxis dataKey="date" tick={{ fontSize: 10, fill: '#4a5e4a' }} axisLine={false} tickLine={false} interval="preserveStartEnd" />
+              <YAxis tick={{ fontSize: 10, fill: '#4a5e4a' }} axisLine={false} tickLine={false} domain={['auto', 'auto']} />
+              <Tooltip content={<CustomTooltip />} cursor={{ stroke: '#1e2e1e', strokeWidth: 1 }} />
               <Area
                 type="monotone"
                 dataKey="marketPrice"
-                stroke={isUp ? '#34C759' : '#FF3B30'}
+                stroke={lineColor}
                 strokeWidth={2}
                 fill="url(#priceGrad)"
                 dot={false}
-                activeDot={{ r: 5, fill: isUp ? '#34C759' : '#FF3B30', strokeWidth: 0 }}
+                activeDot={{ r: 4, fill: lineColor, strokeWidth: 0 }}
               />
             </AreaChart>
           </ResponsiveContainer>
         ) : (
-          <div className="h-full flex items-center justify-center text-[#8E8E93] text-sm">
+          <div className="h-full flex items-center justify-center text-[13px] text-[#4a5e4a]">
             No price history yet
           </div>
         )}
@@ -108,12 +109,11 @@ export function PriceChart({ cardId, currentPrice }: PriceChartProps) {
           <button
             key={r}
             onClick={() => setRange(r)}
-            className={cn(
-              'text-[12px] font-semibold px-2.5 py-1 rounded-lg transition-all press-scale',
-              range === r
-                ? 'bg-[#007AFF] text-white'
-                : 'text-[#8E8E93] hover:bg-[#F2F2F7]'
-            )}
+            className="text-[11px] font-semibold px-2.5 py-1 rounded-lg transition-all press-scale"
+            style={{
+              background: range === r ? '#00cc44' : 'transparent',
+              color: range === r ? '#000' : '#4a5e4a',
+            }}
           >
             {r}
           </button>

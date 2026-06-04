@@ -9,12 +9,11 @@ import { cn } from '../lib/cn';
 const SORT_OPTIONS = [
   { value: 'name_asc',   label: 'Name A–Z' },
   { value: 'name_desc',  label: 'Name Z–A' },
-  { value: 'price_desc', label: 'Price: High–Low' },
-  { value: 'price_asc',  label: 'Price: Low–High' },
-  { value: 'number_asc', label: 'Card Number' },
+  { value: 'price_desc', label: 'Price ↓' },
+  { value: 'price_asc',  label: 'Price ↑' },
+  { value: 'number_asc', label: 'Number' },
 ];
 
-const TYPE_FILTERS = ['All', 'Cards', 'Sealed'];
 const LANGUAGE_FILTERS = ['All', 'EN', 'JP'];
 
 export default function Home() {
@@ -22,7 +21,6 @@ export default function Home() {
   const [sort, setSort] = useState('name_asc');
   const [language, setLanguage] = useState('All');
   const [setFilter, setSetFilter] = useState('');
-  const [typeFilter, setTypeFilter] = useState('All');
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
 
@@ -53,73 +51,74 @@ export default function Home() {
   const totalPages = data?.pagination.pages ?? 1;
 
   return (
-    <div className="min-h-screen bg-[#F2F2F7]">
-      {/* Floating header */}
-      <header className="fixed top-0 left-0 right-0 z-40 glass border-b border-white/20 safe-top">
+    <div className="min-h-screen" style={{ background: '#0a0e0a' }}>
+      {/* Sticky header */}
+      <header
+        className="fixed top-0 left-0 right-0 z-40 safe-top"
+        style={{ background: 'rgba(10,14,10,0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid #1e2e1e' }}
+      >
         <div className="max-w-2xl mx-auto px-4">
           <div className="flex items-center gap-2 py-3">
-            <div className="flex-1 flex items-center gap-2 bg-[#E5E5EA]/80 rounded-xl px-3 py-2">
-              <Search size={15} className="text-[#8E8E93] flex-shrink-0" />
+            {/* Search bar */}
+            <div
+              className="flex-1 flex items-center gap-2 px-3 py-2 rounded-xl"
+              style={{ background: '#111811', border: '1px solid #1e2e1e' }}
+            >
+              <Search size={15} className="text-[#4a5e4a] flex-shrink-0" />
               <input
                 value={query}
                 onChange={e => { setQuery(e.target.value); setPage(1); }}
                 placeholder="Search Pokémon, sets..."
-                className="flex-1 text-[15px] bg-transparent outline-none placeholder:text-[#8E8E93]"
+                className="flex-1 text-[15px] bg-transparent outline-none text-[#e8f5e8] placeholder:text-[#4a5e4a]"
               />
+              {isFetching && (
+                <div className="w-3.5 h-3.5 rounded-full border-2 border-[#00cc44] border-t-transparent animate-spin" />
+              )}
             </div>
+
             <button
               onClick={() => setShowFilters(v => !v)}
-              className={cn(
-                'p-2 rounded-xl transition-colors press-scale',
-                showFilters ? 'bg-[#007AFF] text-white' : 'bg-[#E5E5EA]/80 text-[#3C3C43]'
-              )}
+              className="p-2 rounded-xl transition-colors press-scale"
+              style={{
+                background: showFilters ? '#00cc44' : '#111811',
+                border: '1px solid ' + (showFilters ? '#00cc44' : '#1e2e1e'),
+                color: showFilters ? '#000' : '#8fa88f',
+              }}
             >
-              <SlidersHorizontal size={18} strokeWidth={2} />
+              <SlidersHorizontal size={17} strokeWidth={2} />
             </button>
           </div>
 
           {/* Filter bar */}
           {showFilters && (
-            <div className="pb-3 space-y-2.5 page-enter">
-              {/* Type filter */}
-              <div className="flex gap-2">
-                {TYPE_FILTERS.map(t => (
-                  <button
-                    key={t}
-                    onClick={() => { setTypeFilter(t); setPage(1); }}
-                    className={cn(
-                      'text-[13px] font-medium px-3 py-1.5 rounded-full press-scale',
-                      typeFilter === t ? 'bg-[#007AFF] text-white' : 'bg-[#E5E5EA]/80 text-[#3C3C43]'
-                    )}
-                  >
-                    {t}
-                  </button>
-                ))}
-                <div className="mx-2 w-px bg-[#C7C7CC]" />
+            <div className="pb-3 space-y-2 page-enter">
+              {/* Language + sort */}
+              <div className="flex gap-2 overflow-x-auto pb-0.5">
                 {LANGUAGE_FILTERS.map(l => (
                   <button
                     key={l}
                     onClick={() => { setLanguage(l); setPage(1); }}
-                    className={cn(
-                      'text-[13px] font-medium px-3 py-1.5 rounded-full press-scale',
-                      language === l ? 'bg-[#007AFF] text-white' : 'bg-[#E5E5EA]/80 text-[#3C3C43]'
-                    )}
+                    className="text-[12px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 press-scale transition-all"
+                    style={{
+                      background: language === l ? '#00cc44' : '#111811',
+                      color: language === l ? '#000' : '#8fa88f',
+                      border: '1px solid ' + (language === l ? '#00cc44' : '#1e2e1e'),
+                    }}
                   >
                     {l}
                   </button>
                 ))}
-              </div>
-
-              {/* Sort */}
-              <div className="flex gap-2 overflow-x-auto pb-0.5">
+                <div className="w-px mx-1 flex-shrink-0" style={{ background: '#1e2e1e' }} />
                 {SORT_OPTIONS.map(s => (
                   <button
                     key={s.value}
                     onClick={() => { setSort(s.value); setPage(1); }}
-                    className={cn(
-                      'text-[12px] font-medium px-3 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 press-scale',
-                      sort === s.value ? 'bg-[#1C1C1E] text-white' : 'bg-[#E5E5EA]/80 text-[#3C3C43]'
-                    )}
+                    className="text-[12px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 press-scale"
+                    style={{
+                      background: sort === s.value ? '#1e2e1e' : 'transparent',
+                      color: sort === s.value ? '#e8f5e8' : '#4a5e4a',
+                      border: '1px solid ' + (sort === s.value ? '#2a3d2a' : 'transparent'),
+                    }}
                   >
                     {s.label}
                   </button>
@@ -131,10 +130,12 @@ export default function Home() {
                 <div className="flex gap-2 overflow-x-auto pb-0.5">
                   <button
                     onClick={() => setSetFilter('')}
-                    className={cn(
-                      'text-[12px] font-medium px-3 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 press-scale',
-                      !setFilter ? 'bg-[#34C759] text-white' : 'bg-[#E5E5EA]/80 text-[#3C3C43]'
-                    )}
+                    className="text-[12px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 press-scale"
+                    style={{
+                      background: !setFilter ? '#00cc44' : '#111811',
+                      color: !setFilter ? '#000' : '#8fa88f',
+                      border: '1px solid ' + (!setFilter ? '#00cc44' : '#1e2e1e'),
+                    }}
                   >
                     All Sets
                   </button>
@@ -142,10 +143,12 @@ export default function Home() {
                     <button
                       key={s.id}
                       onClick={() => { setSetFilter(s.id); setPage(1); }}
-                      className={cn(
-                        'text-[12px] font-medium px-3 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 press-scale flex items-center gap-1.5',
-                        setFilter === s.id ? 'bg-[#34C759] text-white' : 'bg-[#E5E5EA]/80 text-[#3C3C43]'
-                      )}
+                      className="text-[12px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap flex-shrink-0 press-scale flex items-center gap-1.5"
+                      style={{
+                        background: setFilter === s.id ? '#00cc44' : '#111811',
+                        color: setFilter === s.id ? '#000' : '#8fa88f',
+                        border: '1px solid ' + (setFilter === s.id ? '#00cc44' : '#1e2e1e'),
+                      }}
                     >
                       {s.symbolUrl && <img src={s.symbolUrl} alt="" className="w-3.5 h-3.5 object-contain" />}
                       {s.name}
@@ -159,28 +162,34 @@ export default function Home() {
       </header>
 
       {/* Content */}
-      <main className={cn('max-w-2xl mx-auto px-4 pb-32', showFilters ? 'pt-48' : 'pt-20')}>
+      <main className={cn('max-w-2xl mx-auto px-4 pb-32', showFilters ? 'pt-44' : 'pt-20')}>
 
-        {/* Trending section */}
+        {/* Trending */}
         {!query && trending.length > 0 && (
-          <section className="mb-5">
+          <section className="mb-6">
             <div className="flex items-center gap-1.5 mb-3">
-              <Flame size={16} className="text-[#FF9500]" />
-              <h2 className="text-[17px] font-bold text-[#1C1C1E]">Trending Today</h2>
+              <Flame size={15} className="text-orange-400" />
+              <h2 className="text-[15px] font-bold text-[#e8f5e8] tracking-tight">Trending Today</h2>
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-1">
+            <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
               {trending.slice(0, 8).map(t => (
                 <Link
                   key={t.card.id}
                   to={`/card/${t.card.id}`}
-                  className="flex-shrink-0 w-28 bg-white rounded-2xl overflow-hidden shadow-sm border border-black/[0.05] press-scale"
+                  className="flex-shrink-0 w-24 rounded-2xl overflow-hidden press-scale"
+                  style={{ background: '#111811', border: '1px solid #1e2e1e' }}
                 >
                   {t.card.imageSmall && (
-                    <img src={t.card.imageSmall} alt={t.card.name} className="w-full aspect-[2.5/3.5] object-contain p-1 bg-gradient-to-br from-gray-50 to-gray-100" />
+                    <img
+                      src={t.card.imageSmall}
+                      alt={t.card.name}
+                      className="w-full aspect-[2.5/3.5] object-contain p-1"
+                      style={{ background: '#0a0e0a' }}
+                    />
                   )}
                   <div className="px-2 pb-2 pt-1">
-                    <p className="text-[11px] font-semibold truncate">{t.card.name}</p>
-                    <p className={cn('text-[11px] font-bold', t.changePct >= 0 ? 'text-gain' : 'text-loss')}>
+                    <p className="text-[11px] font-semibold truncate text-[#e8f5e8]">{t.card.name}</p>
+                    <p className={cn('text-[10px] font-bold', t.changePct >= 0 ? 'text-[#00cc44]' : 'text-[#ff3b3b]')}>
                       {t.changePct >= 0 ? '▲' : '▼'} {Math.abs(t.changePct).toFixed(1)}%
                     </p>
                   </div>
@@ -190,41 +199,46 @@ export default function Home() {
           </section>
         )}
 
-        {/* Sets quick-access row */}
+        {/* Sets row */}
         {!query && setsData && (
-          <section className="mb-5">
+          <section className="mb-6">
             <div className="flex items-center gap-1.5 mb-3">
-              <Package size={16} className="text-[#007AFF]" />
-              <h2 className="text-[17px] font-bold text-[#1C1C1E]">Sets</h2>
+              <Package size={15} className="text-[#00cc44]" />
+              <h2 className="text-[15px] font-bold text-[#e8f5e8] tracking-tight">Sets</h2>
             </div>
-            <div className="flex gap-3 overflow-x-auto pb-1">
+            <div className="flex gap-3 overflow-x-auto pb-1 -mx-1 px-1">
               {setsData.slice(0, 15).map(s => (
                 <button
                   key={s.id}
                   onClick={() => { setSetFilter(s.id); setShowFilters(true); }}
-                  className="flex-shrink-0 flex flex-col items-center gap-1.5 bg-white rounded-2xl p-3 shadow-sm border border-black/[0.05] press-scale w-20"
+                  className="flex-shrink-0 flex flex-col items-center gap-1.5 p-3 rounded-2xl press-scale w-20"
+                  style={{ background: '#111811', border: '1px solid #1e2e1e' }}
                 >
                   {s.logoUrl
-                    ? <img src={s.logoUrl} alt={s.name} className="w-16 h-8 object-contain" />
-                    : <span className="text-[10px] font-medium text-center text-[#3C3C43] leading-tight">{s.name}</span>
+                    ? <img src={s.logoUrl} alt={s.name} className="w-14 h-7 object-contain" />
+                    : <span className="text-[9px] font-medium text-center text-[#8fa88f] leading-tight">{s.name}</span>
                   }
-                  {s.symbolUrl && <img src={s.symbolUrl} alt="" className="w-5 h-5 object-contain" />}
+                  {s.symbolUrl && <img src={s.symbolUrl} alt="" className="w-4 h-4 object-contain" />}
                 </button>
               ))}
             </div>
           </section>
         )}
 
-        {/* Card grid header */}
+        {/* Grid header */}
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[17px] font-bold text-[#1C1C1E]">
-            {query ? `Results for "${query}"` : 'All Cards'}
+          <h2 className="text-[15px] font-bold text-[#e8f5e8]">
+            {query ? `"${query}"` : 'All Cards'}
           </h2>
-          {data && <span className="text-[13px] text-[#8E8E93]">{data.pagination.total.toLocaleString()} cards</span>}
+          {data && (
+            <span className="text-[12px] text-[#4a5e4a]">
+              {data.pagination.total.toLocaleString()} cards
+            </span>
+          )}
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-3 gap-2.5 sm:grid-cols-4">
           {isFetching && cards.length === 0
             ? Array.from({ length: 12 }).map((_, i) => <CardTileSkeleton key={i} />)
             : cards.map(card => <CardTile key={card.id} card={card} />)
@@ -237,15 +251,17 @@ export default function Home() {
             <button
               onClick={() => setPage(p => Math.max(1, p - 1))}
               disabled={page === 1}
-              className="px-5 py-2.5 bg-white rounded-xl text-[14px] font-medium shadow-sm border border-black/[0.06] disabled:opacity-40 press-scale"
+              className="px-4 py-2 rounded-xl text-[13px] font-semibold press-scale disabled:opacity-30 transition-all"
+              style={{ background: '#111811', border: '1px solid #1e2e1e', color: '#8fa88f' }}
             >
               ← Prev
             </button>
-            <span className="text-[14px] text-[#8E8E93]">{page} / {totalPages}</span>
+            <span className="text-[13px] text-[#4a5e4a]">{page} / {totalPages}</span>
             <button
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
-              className="px-5 py-2.5 bg-white rounded-xl text-[14px] font-medium shadow-sm border border-black/[0.06] disabled:opacity-40 press-scale"
+              className="px-4 py-2 rounded-xl text-[13px] font-semibold press-scale disabled:opacity-30 transition-all"
+              style={{ background: '#111811', border: '1px solid #1e2e1e', color: '#8fa88f' }}
             >
               Next →
             </button>

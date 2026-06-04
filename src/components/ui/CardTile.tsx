@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { cn } from '../../lib/cn';
+import { useTilt } from '../../hooks/useTilt';
 import type { Card } from '../../lib/api';
 
 interface CardTileProps {
@@ -7,75 +8,94 @@ interface CardTileProps {
   className?: string;
 }
 
-const RARITY_COLORS: Record<string, string> = {
-  HyperRare: 'from-yellow-400 to-amber-500',
-  SpecialIllustrationRare: 'from-purple-400 to-pink-500',
-  IllustrationRare: 'from-blue-400 to-cyan-400',
-  RareSecret: 'from-yellow-300 to-orange-400',
-  RareRainbow: 'from-pink-400 via-purple-400 to-blue-400',
-  RareUltra: 'from-orange-400 to-red-400',
-  VMAX: 'from-red-500 to-orange-400',
-  VSTAR: 'from-yellow-400 to-orange-500',
-  V: 'from-blue-500 to-indigo-500',
-  RareHolo: 'from-blue-300 to-blue-500',
-  Rare: 'from-gray-300 to-gray-400',
+const RARITY_COLORS: Record<string, { bg: string; text: string; label: string }> = {
+  HyperRare:                   { bg: 'bg-yellow-500/20', text: 'text-yellow-400', label: 'Hyper Rare' },
+  SpecialIllustrationRare:     { bg: 'bg-purple-500/20', text: 'text-purple-300', label: 'SIR' },
+  IllustrationRare:            { bg: 'bg-blue-500/20',   text: 'text-blue-300',   label: 'IR' },
+  RareSecret:                  { bg: 'bg-yellow-600/20', text: 'text-yellow-300', label: 'Secret' },
+  RareRainbow:                 { bg: 'bg-pink-500/20',   text: 'text-pink-300',   label: 'Rainbow' },
+  RareUltra:                   { bg: 'bg-orange-500/20', text: 'text-orange-300', label: 'Ultra' },
+  VMAX:                        { bg: 'bg-red-500/20',    text: 'text-red-400',    label: 'VMAX' },
+  VSTAR:                       { bg: 'bg-yellow-500/20', text: 'text-yellow-400', label: 'VSTAR' },
+  V:                           { bg: 'bg-blue-600/20',   text: 'text-blue-300',   label: 'V' },
+  RareHolo:                    { bg: 'bg-[#00cc4420]',   text: 'text-[#00cc44]',  label: 'Holo' },
+  DoubleRare:                  { bg: 'bg-[#00cc4420]',   text: 'text-[#00cc44]',  label: 'Double Rare' },
+  Rare:                        { bg: 'bg-[#4a5e4a]',     text: 'text-[#8fa88f]',  label: 'Rare' },
+  Uncommon:                    { bg: 'bg-[#1c261c]',     text: 'text-[#4a5e4a]',  label: 'Uncommon' },
+  Common:                      { bg: 'bg-[#1c261c]',     text: 'text-[#4a5e4a]',  label: 'Common' },
 };
 
-function rarityGradient(rarity: string) {
-  return RARITY_COLORS[rarity] || 'from-gray-100 to-gray-200';
+function getRarity(rarity: string) {
+  return RARITY_COLORS[rarity] ?? { bg: 'bg-[#1c261c]', text: 'text-[#4a5e4a]', label: rarity };
 }
 
+// Holographic label — shown when rarity is shiny/holo
+const HOLO_RARITIES = new Set([
+  'RareHolo','RareUltra','RareSecret','RareRainbow','HyperRare',
+  'SpecialIllustrationRare','IllustrationRare','VMAX','VSTAR','V','DoubleRare',
+]);
+
 export function CardTile({ card, className }: CardTileProps) {
+  const { ref, onMouseMove, onMouseLeave } = useTilt(14);
   const nmPrice = card.prices?.find(p => p.condition === 'NEAR_MINT')?.marketPrice;
+  const rarity = getRarity(card.rarity);
+  const isHolo = HOLO_RARITIES.has(card.rarity);
 
   return (
-    <Link
-      to={`/card/${card.id}`}
-      className={cn('block press-scale', className)}
-    >
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-black/[0.06] hover:shadow-md transition-shadow">
+    <Link to={`/card/${card.id}`} className={cn('block', className)}>
+      <div
+        ref={ref}
+        onMouseMove={onMouseMove}
+        onMouseLeave={onMouseLeave}
+        className="card-3d rounded-xl overflow-hidden cursor-pointer"
+        style={{ background: '#111811', border: '1px solid #1e2e1e' }}
+      >
+        {/* Shine overlay */}
+        <div className="card-shine rounded-xl" />
+
+        {/* Holo label */}
+        {isHolo && (
+          <div className="absolute top-2 left-0 right-0 flex justify-center z-10 pointer-events-none">
+            <span className="text-[9px] font-bold tracking-widest uppercase text-[#8fa88f] bg-black/50 px-2 py-0.5 rounded-full">
+              Holographic
+            </span>
+          </div>
+        )}
+
         {/* Card image */}
-        <div className={cn('relative aspect-[2.5/3.5] bg-gradient-to-br', rarityGradient(card.rarity))}>
+        <div className="relative aspect-[2.5/3.5] bg-[#0a0e0a] overflow-hidden">
           {card.imageSmall ? (
             <img
               src={card.imageSmall}
               alt={card.name}
-              className="absolute inset-0 w-full h-full object-contain p-1"
+              className="absolute inset-0 w-full h-full object-contain p-1.5"
               loading="lazy"
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-white/60 text-xs font-medium">{card.name}</span>
+              <span className="text-[#4a5e4a] text-xs font-medium text-center px-2">{card.name}</span>
             </div>
           )}
-
-          {/* Language badge */}
+          {/* JP badge */}
           {card.language === 'JP' && (
-            <span className="absolute top-1.5 left-1.5 bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full">
+            <span className="absolute top-1.5 right-1.5 bg-red-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded-full z-10">
               JP
             </span>
           )}
         </div>
 
         {/* Info */}
-        <div className="px-2.5 py-2">
-          <p className="text-[12px] font-semibold text-[#1C1C1E] leading-tight truncate">{card.name}</p>
-          <p className="text-[10px] text-[#8E8E93] truncate mt-0.5">
-            {card.set?.name} · #{card.number}
-          </p>
+        <div className="px-2.5 pt-2 pb-2.5">
+          <p className="text-[12px] font-semibold text-[#e8f5e8] leading-tight truncate">{card.name}</p>
+          <p className="text-[10px] text-[#4a5e4a] truncate mt-0.5">{card.set?.name}</p>
 
-          {/* Price */}
-          <div className="mt-1.5 flex items-center justify-between">
+          <div className="flex items-center justify-between mt-1.5 gap-1">
+            <span className={cn('rarity-chip', rarity.bg, rarity.text)}>{rarity.label}</span>
             {nmPrice != null ? (
-              <span className="text-[13px] font-bold text-[#1C1C1E]">
-                ${nmPrice.toFixed(2)}
-              </span>
+              <span className="text-[13px] font-bold text-[#00cc44]">${nmPrice.toFixed(2)}</span>
             ) : (
-              <span className="text-[11px] text-[#8E8E93]">No price</span>
+              <span className="text-[10px] text-[#4a5e4a]">—</span>
             )}
-            <span className="text-[9px] bg-[#F2F2F7] text-[#8E8E93] px-1.5 py-0.5 rounded-full font-medium">
-              {card.rarity?.replace(/([A-Z])/g, ' $1').trim()}
-            </span>
           </div>
         </div>
       </div>
@@ -85,9 +105,9 @@ export function CardTile({ card, className }: CardTileProps) {
 
 export function CardTileSkeleton() {
   return (
-    <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-black/[0.06]">
+    <div className="rounded-xl overflow-hidden border border-[#1e2e1e]" style={{ background: '#111811' }}>
       <div className="aspect-[2.5/3.5] shimmer" />
-      <div className="px-2.5 py-2 space-y-1.5">
+      <div className="px-2.5 py-2.5 space-y-2">
         <div className="h-3 shimmer rounded w-3/4" />
         <div className="h-2.5 shimmer rounded w-1/2" />
         <div className="h-3 shimmer rounded w-1/3" />

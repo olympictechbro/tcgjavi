@@ -15,7 +15,7 @@ import CardDetail from './pages/CardDetail';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,   // 5 min
+      staleTime: 1000 * 60 * 5,
       retry: 1,
     },
   },
@@ -27,7 +27,7 @@ export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <div className="relative min-h-screen">
+        <div className="relative min-h-screen" style={{ background: '#0a0e0a' }}>
           <Routes>
             <Route path="/"          element={<Home />} />
             <Route path="/search"    element={<Search />} />
@@ -37,16 +37,18 @@ export default function App() {
             <Route path="/card/:id"  element={<CardDetail />} />
           </Routes>
 
-          {/* Floating + button (center of bottom nav) */}
+          {/* Floating + button */}
           <button
             onClick={() => setAddOpen(true)}
             className="fixed bottom-[52px] left-1/2 -translate-x-1/2 translate-y-1/2 z-50
-              w-14 h-14 rounded-full bg-[#007AFF] shadow-lg shadow-[#007AFF]/40
-              flex items-center justify-center press-scale
-              border-4 border-white"
-            style={{ filter: 'drop-shadow(0 4px 12px rgba(0,122,255,0.5))' }}
+              w-12 h-12 rounded-full flex items-center justify-center press-scale"
+            style={{
+              background: '#00cc44',
+              boxShadow: '0 0 20px rgba(0,204,68,0.5), 0 4px 16px rgba(0,0,0,0.4)',
+              border: '2px solid #0a0e0a',
+            }}
           >
-            <Plus size={26} strokeWidth={2.5} className="text-white" />
+            <Plus size={22} strokeWidth={2.5} className="text-black" />
           </button>
 
           <BottomNav />
