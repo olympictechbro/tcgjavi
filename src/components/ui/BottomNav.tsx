@@ -12,40 +12,35 @@ const tabs = [
 
 export function BottomNav() {
   return (
-    <nav
-      className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50"
-      style={{
-        background: 'rgba(14,20,14,0.96)',
-        backdropFilter: 'blur(24px)',
-        WebkitBackdropFilter: 'blur(24px)',
-        border: '1px solid #1e2e1e',
-        borderRadius: '999px',
-        boxShadow: '0 8px 40px rgba(0,0,0,0.7), 0 2px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04)',
-        padding: '5px 6px',
-      }}
-    >
-      <div className="flex items-center gap-0.5">
+    /* Outer wrapper: full-width flex container just to center the pill */
+    <div className="fixed bottom-6 inset-x-0 z-50 flex justify-center pointer-events-none">
+      <nav
+        className="pointer-events-auto flex items-center gap-0.5 p-1.5"
+        style={{
+          background: 'rgba(14,20,14,0.97)',
+          backdropFilter: 'blur(24px)',
+          WebkitBackdropFilter: 'blur(24px)',
+          border: '1px solid #1e2e1e',
+          borderRadius: '999px',
+          boxShadow: '0 8px 40px rgba(0,0,0,0.8), 0 2px 12px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
+        }}
+      >
         {tabs.map(({ to, icon: Icon, label }) => (
-          <NavLink
-            key={to}
-            to={to}
-            end={to === '/'}
-            className="block"
-          >
+          <NavLink key={to} to={to} end={to === '/'} className="block">
             {({ isActive }) => (
               <div
                 className={cn(
-                  'flex items-center gap-1.5 px-3 py-2 rounded-full transition-all duration-200 press-scale select-none',
-                  isActive ? 'text-black' : 'text-[#4a5e4a]'
+                  'flex items-center gap-1.5 px-3.5 py-2 rounded-full transition-all duration-200 press-scale select-none cursor-pointer',
+                  isActive ? 'text-black' : 'text-[#4a5e4a] hover:text-[#8fa88f]'
                 )}
                 style={isActive ? {
                   background: '#00cc44',
-                  boxShadow: '0 2px 12px rgba(0,204,68,0.4)',
+                  boxShadow: '0 2px 12px rgba(0,204,68,0.45)',
                 } : undefined}
               >
                 <Icon size={17} strokeWidth={isActive ? 2.3 : 1.7} />
                 {isActive && (
-                  <span className="text-[12px] font-bold tracking-tight whitespace-nowrap">
+                  <span className="text-[12px] font-bold tracking-tight whitespace-nowrap pr-0.5">
                     {label}
                   </span>
                 )}
@@ -53,7 +48,7 @@ export function BottomNav() {
             )}
           </NavLink>
         ))}
-      </div>
-    </nav>
+      </nav>
+    </div>
   );
 }
