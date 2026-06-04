@@ -4,7 +4,7 @@ import { Search, SlidersHorizontal, Flame, Package, LayoutGrid, List } from 'luc
 import { Link } from 'react-router-dom';
 import { searchCards, getTrending, getSets, type Card } from '../lib/api';
 import { CardTile, CardTileSkeleton, CardListItem, CardListSkeleton } from '../components/ui/CardTile';
-import { AddCardSheet } from '../components/ui/AddCardSheet';
+import { useAddCard } from '../stores/addCardStore';
 import { cn } from '../lib/cn';
 
 const SORT_OPTIONS = [
@@ -24,7 +24,7 @@ export default function Home() {
   const [showFilters, setShowFilters] = useState(false);
   const [page, setPage] = useState(1);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [quickAddCard, setQuickAddCard] = useState<Card | null>(null);
+  const { openAdd } = useAddCard();
 
   const { data: setsData } = useQuery({
     queryKey: ['sets', language],
@@ -217,14 +217,14 @@ export default function Home() {
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             {isFetching && cards.length === 0
               ? Array.from({ length: 30 }).map((_, i) => <CardTileSkeleton key={i} />)
-              : cards.map(card => <CardTile key={card.id} card={card} onQuickAdd={() => setQuickAddCard(card)} />)
+              : cards.map(card => <CardTile key={card.id} card={card} onQuickAdd={() => openAdd(card)} />)
             }
           </div>
         ) : (
           <div className="space-y-2">
             {isFetching && cards.length === 0
               ? Array.from({ length: 20 }).map((_, i) => <CardListSkeleton key={i} />)
-              : cards.map(card => <CardListItem key={card.id} card={card} onQuickAdd={() => setQuickAddCard(card)} />)
+              : cards.map(card => <CardListItem key={card.id} card={card} onQuickAdd={() => openAdd(card)} />)
             }
           </div>
         )}
@@ -243,11 +243,6 @@ export default function Home() {
         )}
       </main>
 
-      <AddCardSheet
-        open={!!quickAddCard}
-        initialCard={quickAddCard ?? undefined}
-        onClose={() => setQuickAddCard(null)}
-      />
     </div>
   );
 }
