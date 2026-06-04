@@ -6,7 +6,6 @@ buildCommand = "npm install && npm run build"
 nixPkgs = ["nodejs_20"]
 
 [deploy]
-startCommand = "/app/node_modules/.bin/vite preview --host 0.0.0.0 --port $PORT"
 healthcheckPath = "/"
 healthcheckTimeout = 60
 restartPolicyType = "on_failure"
