@@ -18,14 +18,5 @@ export default defineConfig({
   },
   build: {
     outDir: 'dist',
-    rollupOptions: {
-      output: {
-        manualChunks(id) {
-          if (id.includes('recharts') || id.includes('d3-')) return 'charts';
-          if (id.includes('@tanstack')) return 'query';
-          if (id.includes('react-dom') || id.includes('react-router')) return 'vendor';
-        }
-      }
-    }
-  }
+  },
 })
