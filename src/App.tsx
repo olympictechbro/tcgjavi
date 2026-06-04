@@ -37,18 +37,24 @@ export default function App() {
             <Route path="/card/:id"  element={<CardDetail />} />
           </Routes>
 
-          {/* Floating + button */}
+          {/* Floating + button — sits above the pill nav */}
           <button
             onClick={() => setAddOpen(true)}
-            className="fixed bottom-[52px] left-1/2 -translate-x-1/2 translate-y-1/2 z-50
-              w-12 h-12 rounded-full flex items-center justify-center press-scale"
+            className="fixed left-1/2 -translate-x-1/2 z-40 press-scale"
             style={{
+              bottom: '88px',
+              width: '40px',
+              height: '40px',
+              borderRadius: '50%',
               background: '#00cc44',
-              boxShadow: '0 0 20px rgba(0,204,68,0.5), 0 4px 16px rgba(0,0,0,0.4)',
+              boxShadow: '0 0 20px rgba(0,204,68,0.5), 0 4px 12px rgba(0,0,0,0.4)',
               border: '2px solid #0a0e0a',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
           >
-            <Plus size={22} strokeWidth={2.5} className="text-black" />
+            <Plus size={18} strokeWidth={2.5} className="text-black" />
           </button>
 
           <BottomNav />

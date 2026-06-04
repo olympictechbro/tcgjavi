@@ -60,12 +60,12 @@ export default function PnL() {
         className="fixed top-0 left-0 right-0 z-40 safe-top"
         style={{ background: 'rgba(10,14,10,0.95)', backdropFilter: 'blur(20px)', borderBottom: '1px solid #1e2e1e' }}
       >
-        <div className="max-w-2xl mx-auto px-4 py-3">
+        <div className="max-w-[1600px] mx-auto px-4 sm:px-8 py-3">
           <h1 className="text-[24px] font-bold tracking-tight text-[#e8f5e8]">P&amp;L</h1>
         </div>
       </header>
 
-      <main className="pt-20 pb-32 max-w-2xl mx-auto px-4 page-enter space-y-3">
+      <main className="pt-20 pb-36 max-w-[900px] mx-auto px-4 sm:px-8 page-enter space-y-3">
 
         {/* Hero */}
         {summary && (
